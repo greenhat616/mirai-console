@@ -7,17 +7,10 @@
  *  https://github.com/mamoe/mirai/blob/master/LICENSE
  */
 
-@file:Suppress(
-    "EXPOSED_SUPER_CLASS",
-    "NOTHING_TO_INLINE",
-    "unused",
-    "WRONG_MODIFIER_TARGET", "CANNOT_WEAKEN_ACCESS_PRIVILEGE",
-    "WRONG_MODIFIER_CONTAINING_DECLARATION", "RedundantVisibilityModifier"
-)
-
 package net.mamoe.mirai.console.command
 
 import net.mamoe.mirai.console.command.descriptor.*
+import net.mamoe.mirai.console.command.java.JCompositeCommand
 import net.mamoe.mirai.console.compiler.common.ResolveContext
 import net.mamoe.mirai.console.compiler.common.ResolveContext.Kind.COMMAND_NAME
 import net.mamoe.mirai.console.compiler.common.ResolveContext.Kind.RESTRICTED_CONSOLE_COMMAND_OWNER
@@ -31,7 +24,9 @@ import kotlin.annotation.AnnotationTarget.FUNCTION
 /**
  * 复合指令. 指令注册时候会通过反射构造指令解析器.
  *
- * 示例:
+ * Java 示例查看 [JCompositeCommand].
+ *
+ * Kotlin 示例:
  * ```
  * @OptIn(ConsoleExperimentalAPI::class)
  * object MyCompositeCommand : CompositeCommand(

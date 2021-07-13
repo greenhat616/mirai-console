@@ -11,7 +11,6 @@
 
 package net.mamoe.mirai.console.internal.data
 
-import java.util.concurrent.ConcurrentMap
 import java.util.function.BiConsumer
 import java.util.function.BiFunction
 import java.util.function.Function
@@ -153,32 +152,12 @@ internal open class ShadowMap<K, V, KR, VR>(
     }
 }
 
-
-@Suppress(
-    "MANY_IMPL_MEMBER_NOT_IMPLEMENTED", "MANY_INTERFACES_MEMBER_NOT_IMPLEMENTED",
-    "UNCHECKED_CAST", "USELESS_CAST", "ACCIDENTAL_OVERRIDE", "TYPE_MISMATCH",
-    "EXPLICIT_OVERRIDE_REQUIRED_IN_MIXED_MODE", "CONFLICTING_INHERITED_JVM_DECLARATIONS"
-)
-internal open class ConcurrentShadowMap<K, V, KR, VR>(
-    originMapComputer: () -> MutableMap<K, V>,
-    kTransform: (K) -> KR,
-    kTransformBack: (KR) -> K,
-    vTransform: (V) -> VR,
-    vTransformBack: (VR) -> V
-) : ShadowMap<K, V, KR, VR>(
-    originMapComputer, kTransform, kTransformBack, vTransform, vTransformBack
-), ConcurrentMap<KR, VR>
-
 internal fun <K, V, KR, VR> MutableMap<K, V>.shadowMap(
     kTransform: (K) -> KR,
     kTransformBack: (KR) -> K,
     vTransform: (V) -> VR,
     vTransformBack: (VR) -> V
-): MutableMap<KR, VR> = if (this is ConcurrentMap<K, V>) {
-    ConcurrentShadowMap({ this }, kTransform, kTransformBack, vTransform, vTransformBack)
-} else {
-    ShadowMap({ this }, kTransform, kTransformBack, vTransform, vTransformBack)
-}
+): MutableMap<KR, VR> = ShadowMap({ this }, kTransform, kTransformBack, vTransform, vTransformBack)
 
 
 internal inline fun <E, R> MutableCollection<E>.shadowMap(
@@ -438,6 +417,7 @@ internal fun <K, V> MutableMap<K, V>.observable(onChanged: () -> Unit): MutableM
 
         override fun replace(key: K, value: V): V? =
             this@observable.replace(key, value).also { onChanged() }
+
         override fun computeIfAbsent(key: K, mappingFunction: Function<in K, out V>): V =
             this@observable.computeIfAbsent(key, mappingFunction).also { onChanged() }
 
@@ -454,14 +434,7 @@ internal fun <K, V> MutableMap<K, V>.observable(onChanged: () -> Unit): MutableM
             this@observable.merge(key, value, remappingFunction).also { onChanged() }
     }
 
-    @Suppress(
-        "MANY_IMPL_MEMBER_NOT_IMPLEMENTED", "MANY_INTERFACES_MEMBER_NOT_IMPLEMENTED",
-        "UNCHECKED_CAST", "USELESS_CAST", "ACCIDENTAL_OVERRIDE", "TYPE_MISMATCH",
-        "EXPLICIT_OVERRIDE_REQUIRED_IN_MIXED_MODE", "CONFLICTING_INHERITED_JVM_DECLARATIONS"
-    )
-    return if (this is ConcurrentMap<*, *>) {
-        object : ConcurrentMap<K, V>, MutableMap<K, V>, ObservableMap() {}
-    } else ObservableMap()
+    return ObservableMap()
 }
 
 internal inline fun <T> MutableList<T>.observable(crossinline onChanged: () -> Unit): MutableList<T> {

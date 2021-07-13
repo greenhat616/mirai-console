@@ -7,14 +7,6 @@
  *  https://github.com/mamoe/mirai/blob/master/LICENSE
  */
 
-@file:Suppress(
-    "EXPOSED_SUPER_CLASS",
-    "NOTHING_TO_INLINE",
-    "unused",
-    "WRONG_MODIFIER_TARGET", "CANNOT_WEAKEN_ACCESS_PRIVILEGE",
-    "WRONG_MODIFIER_CONTAINING_DECLARATION", "RedundantVisibilityModifier"
-)
-
 package net.mamoe.mirai.console.command
 
 import net.mamoe.mirai.console.command.descriptor.*
@@ -33,10 +25,12 @@ import kotlin.annotation.AnnotationTarget.VALUE_PARAMETER
 /**
  * 简单的, 支持参数自动解析的指令.
  *
- * 要查看指令解析流程, 参考 [CommandManager.executeCommand]
- * 要查看参数解析方式, 参考 [CommandValueArgumentParser]
+ * 要查看指令解析流程, 参考 [CommandManager.executeCommand].
+ * 要查看参数解析方式, 参考 [CommandValueArgumentParser].
  *
- * Kotlin 实现:
+ * Java 示例查看 [JSimpleCommand].
+ *
+ * Kotlin 示例:
  * ```
  * object MySimpleCommand : SimpleCommand(
  *     MyPlugin, "tell",
@@ -70,7 +64,10 @@ public abstract class SimpleCommand(
         reflector.findSubCommands().also {
             reflector.validate(it)
             if (it.isEmpty())
-                throw IllegalCommandDeclarationException(this, "SimpleCommand must have at least one subcommand, whereas zero present.")
+                throw IllegalCommandDeclarationException(
+                    this,
+                    "SimpleCommand must have at least one subcommand, whereas zero present."
+                )
         }
     }
 

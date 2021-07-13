@@ -7,8 +7,6 @@
  *  https://github.com/mamoe/mirai/blob/master/LICENSE
  */
 
-@file:Suppress("unused")
-
 package net.mamoe.mirai.console.command
 
 import net.mamoe.mirai.console.command.descriptor.*
@@ -63,7 +61,12 @@ public abstract class RawCommand(
     override val overloads: List<@JvmWildcard CommandSignature> = listOf(
         CommandSignatureImpl(
             receiverParameter = CommandReceiverParameter(false, typeOf0<CommandSender>()),
-            valueParameters = listOf(AbstractCommandValueParameter.UserDefinedType.createRequired<Array<out Message>>("args", true))
+            valueParameters = listOf(
+                AbstractCommandValueParameter.UserDefinedType.createRequired<Array<out Message>>(
+                    "args",
+                    true
+                )
+            )
         ) { call ->
             val sender = call.caller
             val arguments = call.rawValueArguments
@@ -76,7 +79,7 @@ public abstract class RawCommand(
      *
      * @param args 指令参数.
      *
-     * @see CommandManager.execute 查看更多信息
+     * @see CommandManager.executeCommand 查看更多信息
      */
     public abstract suspend fun CommandSender.onCommand(args: MessageChain)
 }

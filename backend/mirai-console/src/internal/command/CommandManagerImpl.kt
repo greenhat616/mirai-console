@@ -54,14 +54,16 @@ internal object CommandManagerImpl : CommandManager, CoroutineScope by MiraiCons
      */
     override fun matchCommand(commandName: String): Command? {
         if (commandName.startsWith(commandPrefix)) {
-            return requiredPrefixCommandMap[commandName.substringAfter(commandPrefix).toLowerCase()]
+            return requiredPrefixCommandMap[commandName.substringAfter(commandPrefix).lowercase()]
         }
-        return optionalPrefixCommandMap[commandName.toLowerCase()]
+        return optionalPrefixCommandMap[commandName.lowercase()]
     }
     ///// IMPL
 
 
-    override fun getRegisteredCommands(owner: CommandOwner): List<Command> = _registeredCommands.filter { it.owner == owner }
+    override fun getRegisteredCommands(owner: CommandOwner): List<Command> =
+        _registeredCommands.filter { it.owner == owner }
+
     override val allRegisteredCommands: List<Command> get() = _registeredCommands.toList() // copy
     override val commandPrefix: String get() = CommandConfig.commandPrefix
     override fun unregisterAllCommands(owner: CommandOwner) {
@@ -90,13 +92,13 @@ internal object CommandManagerImpl : CommandManager, CoroutineScope by MiraiCons
             _registeredCommands.add(command)
             if (command.prefixOptional) {
                 for (name in command.allNames) {
-                    val lowerCaseName = name.toLowerCase()
+                    val lowerCaseName = name.lowercase()
                     optionalPrefixCommandMap[lowerCaseName] = command
                     requiredPrefixCommandMap[lowerCaseName] = command
                 }
             } else {
                 for (name in command.allNames) {
-                    val lowerCaseName = name.toLowerCase()
+                    val lowerCaseName = name.lowercase()
                     optionalPrefixCommandMap.remove(lowerCaseName) // ensure resolution consistency
                     requiredPrefixCommandMap[lowerCaseName] = command
                 }
@@ -111,11 +113,11 @@ internal object CommandManagerImpl : CommandManager, CoroutineScope by MiraiCons
     override fun unregisterCommand(command: Command): Boolean = modifyLock.withLock {
         if (command.prefixOptional) {
             command.allNames.forEach {
-                optionalPrefixCommandMap.remove(it.toLowerCase())
+                optionalPrefixCommandMap.remove(it.lowercase())
             }
         }
         command.allNames.forEach {
-            requiredPrefixCommandMap.remove(it.toLowerCase())
+            requiredPrefixCommandMap.remove(it.lowercase())
         }
         _registeredCommands.remove(command)
     }

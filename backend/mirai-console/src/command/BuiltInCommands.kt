@@ -42,10 +42,7 @@ import net.mamoe.mirai.console.permission.PermissionService.Companion.permit
 import net.mamoe.mirai.console.permission.PermitteeId
 import net.mamoe.mirai.console.plugin.name
 import net.mamoe.mirai.console.plugin.version
-import net.mamoe.mirai.console.util.AnsiMessageBuilder
-import net.mamoe.mirai.console.util.ConsoleExperimentalApi
-import net.mamoe.mirai.console.util.ConsoleInternalApi
-import net.mamoe.mirai.console.util.sendAnsiMessage
+import net.mamoe.mirai.console.util.*
 import net.mamoe.mirai.event.events.EventCancelledException
 import net.mamoe.mirai.message.nextMessageOrNull
 import net.mamoe.mirai.utils.BotConfiguration
@@ -72,7 +69,7 @@ internal interface BuiltInCommandInternal : Command, BuiltInCommand
  *
  * [查看文档](https://github.com/mamoe/mirai-console/docs/BuiltInCommands.md)
  */
-@Suppress("unused")
+@Suppress("unused", "RESTRICTED_CONSOLE_COMMAND_OWNER")
 public object BuiltInCommands {
     @ConsoleExperimentalApi
     public val parentPermission: Permission by lazy {
@@ -124,6 +121,7 @@ public object BuiltInCommands {
 
         private val closingLock = Mutex()
 
+        @OptIn(DelicateCoroutinesApi::class)
         @Handler
         public suspend fun CommandSender.handle() {
             GlobalScope.launch {
@@ -185,16 +183,16 @@ public object BuiltInCommands {
                     }
                 }.doLogin()
             }.fold(
-                onSuccess = { sendMessage("${it.nick} ($id) Login successful") },
+                onSuccess = { scopeWith(ConsoleCommandSender).sendMessage("${it.nick} ($id) Login successful") },
                 onFailure = { throwable ->
-                    sendMessage(
+                    scopeWith(ConsoleCommandSender).sendMessage(
                         "Login failed: ${throwable.localizedMessage ?: throwable.message ?: throwable.toString()}" +
-                            if (this is CommandSenderOnMessage<*>) {
-                                CommandManagerImpl.launch(CoroutineName("stacktrace delayer from Login")) {
-                                    fromEvent.nextMessageOrNull(60.secondsToMillis) { it.message.contentEquals("stacktrace") }
-                                }
-                                "\n 1 分钟内发送 stacktrace 以获取堆栈信息"
-                            } else ""
+                                if (this is CommandSenderOnMessage<*>) {
+                                    CommandManagerImpl.launch(CoroutineName("stacktrace delayer from Login")) {
+                                        fromEvent.nextMessageOrNull(60.secondsToMillis) { it.message.contentEquals("stacktrace") }
+                                    }
+                                    "\n 1 分钟内发送 stacktrace 以获取堆栈信息"
+                                } else ""
                     )
 
                     throw throwable
@@ -269,7 +267,9 @@ public object BuiltInCommands {
         @Description("查看所有权限列表")
         @SubCommand("listPermissions", "lp")
         public suspend fun CommandSender.listPermissions() {
-            sendMessage(PermissionService.INSTANCE.getRegisteredPermissions().joinToString("\n") { it.id.toString() + "    " + it.description })
+            sendMessage(
+                PermissionService.INSTANCE.getRegisteredPermissions()
+                    .joinToString("\n") { it.id.toString() + "    " + it.description })
         }
     }
 

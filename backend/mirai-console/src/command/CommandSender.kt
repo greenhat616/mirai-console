@@ -1,14 +1,14 @@
 /*
- * Copyright 2019-2020 Mamoe Technologies and contributors.
+ * Copyright 2019-2021 Mamoe Technologies and contributors.
  *
- * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
- * Use of this source code is governed by the GNU AFFERO GENERAL PUBLIC LICENSE version 3 license that can be found through the following link.
+ *  此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
+ *  Use of this source code is governed by the GNU AGPLv3 license that can be found through the following link.
  *
- * https://github.com/mamoe/mirai/blob/master/LICENSE
+ *  https://github.com/mamoe/mirai/blob/master/LICENSE
  */
 
 @file:Suppress(
-    "NOTHING_TO_INLINE", "INAPPLICABLE_JVM_NAME", "FunctionName", "SuspendFunctionOnCoroutineScope",
+    "NOTHING_TO_INLINE", "FunctionName",
     "unused", "MemberVisibilityCanBePrivate"
 )
 
@@ -34,7 +34,7 @@ import net.mamoe.mirai.console.util.CoroutineScopeUtils.childScopeContext
 import net.mamoe.mirai.console.util.MessageScope
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.event.events.*
-import net.mamoe.mirai.message.*
+import net.mamoe.mirai.message.MessageReceipt
 import net.mamoe.mirai.message.data.Message
 import net.mamoe.mirai.message.data.PlainText
 import kotlin.contracts.InvocationKind
@@ -206,21 +206,24 @@ public interface CommandSender : CoroutineScope, Permittee {
          */
         @JvmStatic
         @JvmName("from")
-        public fun GroupTempMessageEvent.toCommandSender(): GroupTempCommandSenderOnMessage = GroupTempCommandSenderOnMessage(this)
+        public fun GroupTempMessageEvent.toCommandSender(): GroupTempCommandSenderOnMessage =
+            GroupTempCommandSenderOnMessage(this)
 
         /**
          * 构造 [StrangerCommandSenderOnMessage]
          */
         @JvmStatic
         @JvmName("from")
-        public fun StrangerMessageEvent.toCommandSender(): StrangerCommandSenderOnMessage = StrangerCommandSenderOnMessage(this)
+        public fun StrangerMessageEvent.toCommandSender(): StrangerCommandSenderOnMessage =
+            StrangerCommandSenderOnMessage(this)
 
         /**
          * 构造 [OtherClientCommandSenderOnMessage]
          */
         @JvmStatic
         @JvmName("from")
-        public fun OtherClientMessageEvent.toCommandSender(): OtherClientCommandSenderOnMessage = OtherClientCommandSenderOnMessage(this)
+        public fun OtherClientMessageEvent.toCommandSender(): OtherClientCommandSenderOnMessage =
+            OtherClientCommandSenderOnMessage(this)
 
         /**
          * 构造 [CommandSenderOnMessage]
@@ -599,7 +602,8 @@ public sealed class TempCommandSender(
 @Suppress("DELEGATED_MEMBER_HIDES_SUPERTYPE_OVERRIDE")
 public open class GroupTempCommandSender internal constructor(
     public final override val user: NormalMember,
-) : @Suppress("DEPRECATION_ERROR") TempCommandSender(user), CoroutineScope by user.childScope("GroupTempCommandSender") {
+) : @Suppress("DEPRECATION_ERROR") TempCommandSender(user),
+    CoroutineScope by user.childScope("GroupTempCommandSender") {
     public override val group: Group get() = user.group
     public override val subject: NormalMember get() = user
     public override fun toString(): String = "GroupTempCommandSender($user)"
@@ -649,7 +653,8 @@ public open class OtherClientCommandSender internal constructor(
     public override val permitteeId: PermitteeId = AbstractPermitteeId.AnyOtherClient
 
     @JvmBlockingBridge
-    public override suspend fun sendMessage(message: String): MessageReceipt<OtherClient> = sendMessage(PlainText(message))
+    public override suspend fun sendMessage(message: String): MessageReceipt<OtherClient> =
+        sendMessage(PlainText(message))
 
     @JvmBlockingBridge
     public override suspend fun sendMessage(message: Message): MessageReceipt<OtherClient> = client.sendMessage(message)
@@ -696,7 +701,10 @@ public class MemberCommandSenderOnMessage internal constructor(
  */
 @Deprecated(
     "mirai 正计划支持其他渠道发起的临时会话, 届时此事件会变动. 原 TempCommandSenderOnMessage 已更改为 GroupTempCommandSenderOnMessage",
-    replaceWith = ReplaceWith("GroupTempCommandSenderOnMessage", "net.mamoe.mirai.console.command.GroupTempCommandSenderOnMessage"),
+    replaceWith = ReplaceWith(
+        "GroupTempCommandSenderOnMessage",
+        "net.mamoe.mirai.console.command.GroupTempCommandSenderOnMessage"
+    ),
     DeprecationLevel.ERROR
 )
 public sealed class TempCommandSenderOnMessage(

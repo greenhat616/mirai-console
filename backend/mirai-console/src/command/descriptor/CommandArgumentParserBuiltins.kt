@@ -113,10 +113,10 @@ public object PlainTextValueArgumentParser : InternalCommandValueArgumentParserE
 public object BooleanValueArgumentParser : InternalCommandValueArgumentParserExtensions<Boolean>() {
     public override fun parse(raw: String, sender: CommandSender): Boolean = raw.trim().let { str ->
         str.equals("true", ignoreCase = true)
-            || str.equals("yes", ignoreCase = true)
-            || str.equals("enabled", ignoreCase = true)
-            || str.equals("on", ignoreCase = true)
-            || str.equals("1", ignoreCase = true)
+                || str.equals("yes", ignoreCase = true)
+                || str.equals("enabled", ignoreCase = true)
+                || str.equals("on", ignoreCase = true)
+                || str.equals("1", ignoreCase = true)
     }
 }
 
@@ -217,11 +217,21 @@ public object ExistingUserValueArgumentParser : InternalCommandValueArgumentPars
     """.trimIndent()
 
     override fun parse(raw: String, sender: CommandSender): User {
-        return parseImpl(sender, raw, ExistingMemberValueArgumentParser::parse, ExistingFriendValueArgumentParser::parse)
+        return parseImpl(
+            sender,
+            raw,
+            ExistingMemberValueArgumentParser::parse,
+            ExistingFriendValueArgumentParser::parse
+        )
     }
 
     override fun parse(raw: MessageContent, sender: CommandSender): User {
-        return parseImpl(sender, raw, ExistingMemberValueArgumentParser::parse, ExistingFriendValueArgumentParser::parse)
+        return parseImpl(
+            sender,
+            raw,
+            ExistingMemberValueArgumentParser::parse,
+            ExistingFriendValueArgumentParser::parse
+        )
     }
 
     private fun <T> parseImpl(
@@ -421,10 +431,10 @@ public class EnumValueArgumentParser<T : Enum<T>>(
     private val delegate: (String) -> T = kotlin.run {
         val enums = type.enumConstants.asSequence()
         // step 1: 分析是否能够忽略大小写
-        if (enums.map { it.name.toLowerCase() }.hasDuplicates()) {
+        if (enums.map { it.name.lowercase() }.hasDuplicates()) {
             ({ java.lang.Enum.valueOf(type, it) })
         } else { // step 2: 分析是否能使用小驼峰命名
-            val lowerCaseEnumDirection = enums.map { it.name.toLowerCase() to it }.toList().toMap()
+            val lowerCaseEnumDirection = enums.map { it.name.lowercase() to it }.toList().toMap()
 
             val camelCase = enums.mapNotNull { elm ->
                 val name = elm.name.split('_')
@@ -433,19 +443,19 @@ public class EnumValueArgumentParser<T : Enum<T>>(
                 } else {
                     buildString {
                         val iterator = name.iterator()
-                        append(iterator.next().toLowerCase())
+                        append(iterator.next().lowercase())
                         for (v in iterator) {
                             if (v.isEmpty()) continue
-                            append(v[0].toUpperCase())
-                            append(v.substring(1, v.length).toLowerCase())
+                            append(v[0].uppercase())
+                            append(v.substring(1, v.length).lowercase())
                         }
                     } to elm
                 }
             }
 
             val camelCaseDirection = if ((
-                    enums.map { it.name.toLowerCase() } + camelCase.map { it.first.toLowerCase() }
-                    ).hasDuplicates()
+                        enums.map { it.name.lowercase() } + camelCase.map { it.first.lowercase() }
+                        ).hasDuplicates()
             ) { // 确认驼峰命名与源没有冲突
                 emptyMap()
             } else {
@@ -454,7 +464,7 @@ public class EnumValueArgumentParser<T : Enum<T>>(
 
             ({
                 camelCaseDirection[it]
-                    ?: lowerCaseEnumDirection[it.toLowerCase()]
+                    ?: lowerCaseEnumDirection[it.lowercase()]
                     ?: noConstant()
             })
         }
@@ -469,7 +479,8 @@ public class EnumValueArgumentParser<T : Enum<T>>(
     }
 }
 
-internal abstract class InternalCommandValueArgumentParserExtensions<T : Any> : AbstractCommandValueArgumentParser<T>() {
+internal abstract class InternalCommandValueArgumentParserExtensions<T : Any> :
+    AbstractCommandValueArgumentParser<T>() {
     private fun String.parseToLongOrFail(): Long = toLongOrNull() ?: illegalArgument("无法解析 $this 为整数")
 
     protected fun Long.findBotOrFail(): Bot = Bot.getInstanceOrNull(this) ?: illegalArgument("无法找到 Bot: $this")
@@ -502,11 +513,12 @@ internal abstract class InternalCommandValueArgumentParserExtensions<T : Any> : 
             illegalArgument("无法找到成员 $idOrCard")
         } else {
             var index = 1
-            illegalArgument("无法找到成员 $idOrCard。 多个成员满足搜索结果或匹配度不足: \n\n" +
-                candidates.joinToString("\n", limit = 6) {
-                    val percentage = (it.second * 100).toDecimalPlace(0)
-                    "#${index++}(${percentage}%)${it.first.nameCardOrNick.truncate(10)}(${it.first.id})" // #1 15.4%
-                }
+            illegalArgument(
+                "无法找到成员 $idOrCard。 多个成员满足搜索结果或匹配度不足: \n\n" +
+                        candidates.joinToString("\n", limit = 6) {
+                            val percentage = (it.second * 100).toDecimalPlace(0)
+                            "#${index++}(${percentage}%)${it.first.nameCardOrNick.truncate(10)}(${it.first.id})" // #1 15.4%
+                        }
             )
         }
     }

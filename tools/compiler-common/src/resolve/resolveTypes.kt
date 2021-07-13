@@ -63,11 +63,16 @@ val RESOLVE_CONTEXT_FQ_NAME = FqName("net.mamoe.mirai.console.compiler.common.Re
  */
 typealias ResolveContextKind = ResolveContext.Kind
 
-fun ResolveContext.Kind.Companion.valueOfOrNull(string: String) = ResolveContext.Kind.values().find { it.name == string }
+fun ResolveContext.Kind.Companion.valueOfOrNull(string: String) =
+    ResolveContext.Kind.values().find { it.name == string }
 
 val Annotated.resolveContextKinds: List<ResolveContextKind>?
     get() {
         val ann = this.findAnnotation(RESOLVE_CONTEXT_FQ_NAME) ?: return null
+
+        // https://github.com/mamoe/mirai-console/issues/363
+        if (ann.allValueArguments.isEmpty()) return null
+
         return ann.allValueArguments
             .firstValue()
             .castOrNull<ArrayValue>()?.value
